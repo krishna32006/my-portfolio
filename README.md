@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DSA Assistant — Prototype</title>
+<style>
+  body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; padding:0; background:#f7fafc; color:#0f172a; }
+  header { background:linear-gradient(90deg,#0ea5e9,#7c3aed); color:white; padding:18px 24px; box-shadow:0 4px 18px rgba(2,6,23,0.08); }
+  .container { max-width:980px; margin:24px auto; padding:16px; }
+  h1 { margin:0; font-size:20px; }
+  .grid { display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start; }
+  .card { background:white; border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.06); }
+  label, select { display:block; margin-bottom:8px; font-weight:600; }
+  select, textarea, input, button { width:100%; padding:10px; border-radius:8px; border:1px solid #e6eef6; box-sizing:border-box; font-size:14px; }
+  pre { background:#0f172a; color:#e6eef6; padding:12px; border-radius:8px; overflow:auto; font-size:13px; }
+  .small { font-size:13px; color:#475569; }
+  .flex { display:flex; gap:8px; }
+  .btn { background:#0ea5e9; color:white; border:none; cursor:pointer; font-weight:700; padding:10px 12px; border-radius:8px; }
+  .btn.secondary { background:#eef2ff; color:#5b21b6; }
+  .hint { background:#fff7ed; border-left:4px solid #f59e0b; padding:10px; border-radius:6px; }
+  .footer { text-align:center; color:#64748b; margin-top:18px; font-size:13px; }
+  .quiz-item { margin-bottom:12px; }
+  .code-tabs { display:flex; gap:8px; margin-bottom:8px; }
+  .tab { padding:6px 8px; background:#f1f5f9; border-radius:8px; cursor:pointer; }
+  .tab.active { background:#0ea5e9; color:white; }
+  .resources a { color:#0369a1; text-decoration:none; }
+  @media(max-width:900px){ .grid { grid-template-columns: 1fr; } .container{ padding:12px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>DSA Assistant — Prototype (single file)</h1>
+    <div class="small">A lightweight "AI-like" tool for learning & practicing Data Structures & Algorithms. Download and host for your college submission.</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="grid">
+    <div>
+      <div class="card" id="explainer">
+        <h3>Algorithm Explainer</h3>
+        <label for="topic">Choose topic</label>
+        <select id="topic">
+          <option value="binary_search">Binary Search</option>
+          <option value="two_pointers">Two Pointers</option>
+          <option value="sliding_window">Sliding Window</option>
+          <option value="dfs_bfs">DFS & BFS</option>
+          <option value="dijkstra">Dijkstra (Shortest Path)</option>
+          <option value="knapsack">0/1 Knapsack (DP)</option>
+          <option value="lcs">Longest Common Subsequence (DP)</option>
+          <option value="merge_sort">Merge Sort</option>
+        </select>
+        <div style="margin-top:12px">
+          <button class="btn" id="explainBtn">Explain (AI-like)</button>
+          <button class="btn secondary" id="exampleBtn" style="width:150px">Show Example</button>
+        </div>
+        <hr style="margin:12px 0" />
+        <div id="explanationArea" class="small">Select a topic and click "Explain". The tool gives an explanation, complexity, and hints (3 levels).</div>
+      </div>
+
+      <div class="card" style="margin-top:14px" id="hints">
+        <h3>Hint Generator (3 levels)</h3>
+        <label for="problemInput">Paste problem statement (brief)</label>
+        <textarea id="problemInput" rows="4" placeholder="Example: Given a sorted array, find first index of target..."></textarea>
+        <div class="flex" style="margin-top:8px">
+          <select id="hintLevel" style="width:140px">
+            <option value="1">Level 1 — High level</option>
+            <option value="2">Level 2 — Approach</option>
+            <option value="3">Level 3 — Implementation tips</option>
+          </select>
+          <button class="btn" id="hintBtn">Get Hint</button>
+        </div>
+        <div id="hintOutput" style="margin-top:12px">Hints will show here.</div>
+      </div>
+
+      <div class="card" style="margin-top:14px" id="quiz">
+        <h3>Mini Quiz</h3>
+        <div id="quizArea"></div>
+        <button class="btn" id="checkQuiz">Check Answers</button>
+        <div id="quizResult" style="margin-top:8px"></div>
+      </div>
+
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>Code Templates</h3>
+        <div class="code-tabs" id="langTabs">
+          <div class="tab active" data-lang="python">Python</div>
+          <div class="tab" data-lang="cpp">C++</div>
+          <div class="tab" data-lang="java">Java</div>
+        </div>
+        <pre id="codeBlock">Select a topic and click "Show Example" to load a template.</pre>
+        <div style="margin-top:8px" class="flex">
+          <button class="btn" id="copyCode">Copy Code</button>
+          <button class="btn secondary" id="downloadCode">Download</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Resources & Hosting</h3>
+        <ol class="small resources">
+          <li>To host: upload this file to GitHub and enable Pages, or drop into any static host (Netlify, Vercel). Or simply open locally.</li>
+          <li>GitHub Pages quick: Create repo → add this file → Settings → Pages → select main branch → Save.</li>
+          <li>Suggested reading: CLRS, LeetCode, GeeksforGeeks</li>
+        </ol>
+        <div style="margin-top:10px">
+          <button class="btn" id="downloadAll">Download this page (HTML file)</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>About this "AI"</h3>
+        <div class="small">
+          This prototype does not call external servers. It uses rule-based templates and heuristics to generate explanations & hints — enough for a college demo. If you want a true AI backend (OpenAI or similar), you can connect an API key and add a server; instructions included in comments.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Made for your college submission • You can rename the file & host wherever you want.</div>
+</div>
+
+<script>
+const EXPLAINERS = {
+  binary_search: {
+    title: "Binary Search",
+    explanation: `Binary Search finds the position of a target value within a sorted array by repeatedly halving the search interval. Compare target with middle element; if equal return index; if target < mid, search left half; otherwise right half.`,
+    complexity: "Time: O(log n), Space: O(1)",
+    example: `Problem: Given sorted array arr and target, return index or -1.\n\nPython template:\n# binary search\nl, r = 0, len(arr)-1\nwhile l <= r:\n  mid = (l + r)//2\n  if arr[mid] == target: return mid\n  elif arr[mid] < target: l = mid+1\n  else: r = mid-1\nreturn -1`
+  },
+  two_pointers: {
+    title: "Two Pointers",
+    explanation: `Use two indices to iterate over array(s) from ends or both starts for problems like pair sum, removing duplicates, or merging sorted arrays.`,
+    complexity: "Time: O(n) typically, Space: O(1).",
+    example: `Two Sum (sorted): set left=0, right=n-1; while left<right: sum = a[left]+a[right]; adjust pointers accordingly.`
+  },
+  sliding_window: {
+    title: "Sliding Window",
+    explanation: `Maintain a window [i..j] and expand/contract to meet constraints (sum, unique count). Good for max/min subarray problems.`,
+    complexity: "Time: O(n) typical, Space: O(1) or O(k) if using map.",
+    example: `Find max sum of subarray of size k: use running sum with i pointer removing outgoing element.`
+  },
+  dfs_bfs: {
+    title: "DFS & BFS",
+    explanation: `Graph/tree traversal: BFS uses queue (level-order), DFS uses stack/recursion (deep-first). Use BFS for shortest path in unweighted graph, DFS for connectivity, topological sort.`,
+    complexity: "Time: O(V+E), Space: O(V)",
+    example: `BFS: queue push start, while q: node = pop; visit neighbors not yet seen; mark visited.`
+  },
+  dijkstra: {
+    title: "Dijkstra's Algorithm",
+    explanation: `Single-source shortest path for non-negative edge weights. Use min-priority queue (heap). Start dist[source]=0; relax edges via popping smallest dist node.`,
+    complexity: "Time: O((V+E) log V) with binary heap",
+    example: `Use heap; push (0,source); while heap: d,u = pop; if d>dist[u] continue; for v,w in adj[u]: if dist[v]>d+w: update and push.`
+  },
+  knapsack: {
+    title: "0/1 Knapsack (DP)",
+    explanation: `Decision: include or exclude item. Build DP table dp[i][w] = max value using first i items with capacity w. Use iterative or space-optimized 1D approach.`,
+    complexity: "Time: O(n*W), Space: O(W) with optimization",
+    example: `Classic DP double loop over items and capacities.`
+  },
+  lcs: {
+    title: "Longest Common Subsequence (LCS)",
+    explanation: `DP where dp[i][j] = LCS of first i chars of A and first j chars of B. If A[i-1]==B[j-1], dp[i][j] = 1+dp[i-1][j-1], else max(dp[i-1][j], dp[i][j-1]).`,
+    complexity: "Time: O(n*m), Space: O(n*m) or optimized to O(min(n,m))",
+    example: `Fill 2D DP table iteratively.`
+  },
+  merge_sort: {
+    title: "Merge Sort",
+    explanation: `Divide array into halves, recursively sort each half, then merge two sorted halves. Stable, O(n log n).`,
+    complexity: "Time: O(n log n), Space: O(n)",
+    example: `Recursive split and merge using temporary array.`
+  }
+};
+
+document.getElementById('explainBtn').addEventListener('click', ()=> {
+  const top = document.getElementById('topic').value;
+  const data = EXPLAINERS[top];
+  document.getElementById('explanationArea').innerHTML =
+    `<strong>${data.title}</strong><br/><br/>${data.explanation}<br/><br/><em>${data.complexity}</em>`;
+});
+
+document.getElementById('exampleBtn').addEventListener('click', ()=> {
+  const top = document.getElementById('topic').value;
+  const data = EXPLAINERS[top];
+  setCodeBlock(data.example);
+});
+
+function setCodeBlock(text){
+  document.getElementById('codeBlock').textContent = text;
+}
+
+document.getElementById('hintBtn').addEventListener('click', ()=> {
+  const problem = (document.getElementById('problemInput').value || '').trim();
+  const level = document.getElementById('hintLevel').value;
+  const out = document.getElementById('hintOutput');
+  if(!problem){
+    out.innerHTML = `<div class="hint">Paste a brief problem statement to get hints.</div>`;
+    return;
+  }
+  // Simple rule-based "AI" hinting
+  let hint = '';
+  const lower = problem.toLowerCase();
+  if(level==='1'){
+    // high-level
+    if(lower.includes('sorted') || lower.includes('binary')) hint = 'High level: If array is sorted consider binary search or two pointers depending on question.';
+    else if(lower.includes('shortest') || lower.includes('path')) hint = 'High level: Model as graph; decide if weights are present. Use BFS for unweighted, Dijkstra for non-negative weights.';
+    else if(lower.includes('subsequence')||lower.includes('lcs')) hint = 'High level: Consider dynamic programming where states represent prefixes.';
+    else hint = 'High level: Try to reformulate problem: what is state, what operations change state, and what constraints must hold?';
+  } else if(level==='2'){
+    if(lower.includes('sorted')) hint = 'Approach: Use two pointers (for pairs) or binary search (for index). Consider duplicates and edge positions.';
+    else if(lower.includes('sum') && lower.includes('subarray')) hint = 'Approach: sliding window if all positive numbers; else consider prefix sums and hashing.';
+    else hint = 'Approach: Define state clearly (e.g., index + remaining capacity), then build recurrence or greedy rule.';
+  } else {
+    // implementation tips
+    hint = 'Implementation tips: Validate edge cases: empty input, single element, duplicates, boundaries (overflow). Use long/int64 for large sums.';
+    if(lower.includes('graph')) hint += ' For graphs, ensure visited set and avoid recomputing distances; use adjacency list.';
+  }
+  out.innerHTML = `<div class="hint">${hint}</div>`;
+});
+
+
+// Quiz data
+const QUIZ = [
+  {q: 'Binary search works only on sorted arrays.', opts: ['True','False'], a:0},
+  {q: 'Time complexity of merge sort is O(n^2).', opts: ['True','False'], a:1},
+  {q: 'Dijkstra can handle negative edge weights.', opts: ['True','False'], a:1}
+];
+
+function renderQuiz(){
+  const container = document.getElementById('quizArea');
+  container.innerHTML = '';
+  QUIZ.forEach((it, idx)=>{
+    const div = document.createElement('div'); div.className='quiz-item';
+    let html = `<div><strong>${idx+1}. ${it.q}</strong></div>`;
+    it.opts.forEach((o,i)=>{
+      html += `<label style="display:block"><input type="radio" name="q${idx}" value="${i}" /> ${o}</label>`;
+    });
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+renderQuiz();
+
+document.getElementById('checkQuiz').addEventListener('click', ()=>{
+  let score=0;
+  QUIZ.forEach((it,idx)=>{
+    const sel = document.querySelector(`input[name="q${idx}"]:checked`);
+    if(sel && parseInt(sel.value) === it.a) score++;
+  });
+  document.getElementById('quizResult').innerText = `Score: ${score} / ${QUIZ.length}`;
+});
+
+// Code tab switching
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=> {
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    // change sample language template by prefixing comments
+    const lang = t.getAttribute('data-lang');
+    const curr = document.getElementById('codeBlock').textContent;
+    if(lang==='python') document.getElementById('codeBlock').textContent = curr.replace(/\/\//g,'#');
+    // no heavy conversion, templates are basic; user can edit
+  });
+});
+
+document.getElementById('copyCode').addEventListener('click', ()=>{
+  const text = document.getElementById('codeBlock').textContent;
+  navigator.clipboard.writeText(text).then(()=>alert('Copied!'), ()=>alert('Copy failed.'));
+});
+
+document.getElementById('downloadCode').addEventListener('click', ()=>{
+  const text = document.getElementById('codeBlock').textContent;
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'dsa_template.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+// create downloadable HTML file (this page)
+document.getElementById('downloadAll').addEventListener('click', ()=>{
+  const full = '<!doctype html>\\n' + document.documentElement.outerHTML;
+  const blob = new Blob([full], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'dsa_assistant_prototype.html';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+// simple "save" fallback: when user opens file directly they can use save as
+</script>
+</body>
+</html>
